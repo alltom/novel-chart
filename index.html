@@ -1,0 +1,143 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Novel Chart</title>
+<style>
+.cursor, .cursor-line {
+	pointer-events: none;
+	display: none;
+	position: absolute;
+}
+.cursor {
+	width: 10px;
+	height: 10px;
+	border: 2px solid black;
+}
+.cursor-line {
+	height: 400px;
+	width: 0;
+	border-left: 1px solid black;
+}
+.annotation-dot {
+	display: none;
+	position: absolute;
+	width: 16px;
+	height: 16px;
+	background: red;
+	color: white;
+	font-size: 16px;
+	font-weight: bold;
+	text-align: center;
+	line-height: 16px;
+	cursor: pointer;
+	border-radius: 4px;
+}
+.annotation-form {
+	display: none;
+	padding: 4px;
+	background: white;
+	border: 1px solid black;
+}
+</style>
+
+<img src="graph.png" id="graph" />
+<div class="cursor"></div>
+<div class="cursor-line"></div>
+
+<div class="annotation-dot"></div>
+<div class="annotation-form">
+	Letter: <input type="text" /><br />
+	Notes: <textarea></textarea>
+</div>
+
+<script src="jquery.js"></script>
+<script>
+var points = [[55, 175], [62, 175], [66, 171], [89, 232], [96, 223], [154, 335], [205, 70], [224, 70], [244, 382], [303, 318], [360, 369], [419, 231], [430, 251], [510, 43], [535, 43]];
+
+var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+var nextLetter = 0;
+
+function linearInterpolate(val, min1, max1, min2, max2) {
+	return (val - min1) / (max1 - min1) * (max2 - min2) + min2;
+}
+
+function graphPointFor(x) {
+	for (var i = 0; i < points.length - 1; i++) {
+		if (x >= points[i][0] && x <= points[i+1][0]) {
+			return linearInterpolate(x, points[i][0], points[i+1][0], points[i][1], points[i+1][1]);
+		}
+	}
+}
+
+function Annotation(x, y, letter, $cursor) {
+	this.x = x;
+	this.y = y;
+	this.letter = letter;
+	this.$cursor = $cursor;
+}
+
+function AnnotationForm($form, annotation) {
+	this.$form = $form;
+	this.annotation = annotation;
+
+	this.$form.find('input').val(this.annotation.letter);
+}
+AnnotationForm.prototype = {
+	show: function () {
+		this.$form.show();
+	},
+};
+
+$(document).on('ready', function () {
+	var $graphImage = $('#graph');
+
+	var $cursor = $('.cursor');
+	var $cursorLine = $('.cursor-line');
+	var cursorPosition = [undefined, undefined];
+
+	var $annotationDot = $('.annotation-dot');
+	var $annotationForm = $('.annotation-form');
+
+	$graphImage.on('mousemove', function (e) {
+		cursorPosition[0] = e.pageX - $graphImage.offset().left;
+		cursorPosition[1] = graphPointFor(cursorPosition[0]);
+		if (cursorPosition[1] !== undefined) {
+			$cursor.show().offset({
+				left: e.pageX - $cursor.outerWidth()/2,
+				top: $graphImage.offset().top + (cursorPosition[1] - $cursor.outerHeight()/2)
+			});
+			$cursorLine.show().offset({
+				left: e.pageX,
+				top: $graphImage.offset().top
+			});
+		}
+	});
+
+	$graphImage.on('click', function () {
+		if (cursorPosition[0] !== undefined && cursorPosition[1] !== undefined) {
+			// pick a letter for the annotation
+			var letter = letters[nextLetter];
+			nextLetter = (nextLetter + 1) % letters.length;
+
+			// create the dot on the graph
+			var $dot = $annotationDot.clone().appendTo(document.body).show();
+			$dot.offset({
+				left: cursorPosition[0] + $graphImage.offset().left - $dot.outerWidth()/2,
+				top: cursorPosition[1] + $graphImage.offset().top - $dot.outerHeight()/2
+			});
+			$dot.text(letter);
+
+			// create the annotation object and its form
+			var annotation = new Annotation(cursorPosition[0], cursorPosition[1], letter, $dot);
+			var form = new AnnotationForm($annotationForm.clone().appendTo(document.body), annotation);
+			form.show();
+		}
+	});
+
+	// when mouse goes over a dot, hide the sliding cursor
+	$(document.body).on('mouseenter', '.annotation-dot', function () {
+		cursorPosition = [undefined, undefined];
+		$cursor.hide();
+		$cursorLine.hide();
+	});
+});
+</script>
