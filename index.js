@@ -53,12 +53,19 @@ function Annotation(x, y, letter, $cursor) {
 function AnnotationForm($form, annotation) {
   this.$form = $form;
   this.annotation = annotation;
+  var $letterInput = this.$form.find('input');
+  var $notes = this.$form.find('textarea');
+  var $printNotes = this.$form.find('.print-notes');
 
-  var letterInput = this.$form.find('input');
-  letterInput.val(this.annotation.letter);
-  letterInput.on('change', function() {
-    this.annotation.$cursor.text(letterInput.val());
+  $letterInput.val(this.annotation.letter);
+  $letterInput.on('change', function() {
+    this.annotation.$cursor.text($letterInput.val());
   }.bind(this));
+
+  $notes.on('change', function() {
+    $printNotes.html(new showdown.Converter({simpleLineBreaks: true})
+                         .makeHtml($notes.val()));
+  });
 }
 AnnotationForm.prototype = {
   show: function() {
@@ -71,7 +78,8 @@ function WordCountForm($form) {
   var $output = $form.find('.output');
 
   function update() {
-    $output.text(Math.round(parseInt($input.val()) / Math.max(annotations.length, 1)));
+    $output.text(
+        Math.round(parseInt($input.val()) / Math.max(annotations.length, 1)));
   }
 
   $(document.body).on('newannotation', update);

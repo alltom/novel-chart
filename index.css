@@ -42,9 +42,16 @@
 	display: none;
 }
 
+.print-notes {
+	display: none;
+}
+
 @media print {
 	textarea {
-		border: 0;
-		width: 100%;
+		display: none;
+	}
+
+	.print-notes {
+		display: block;
 	}
 }
