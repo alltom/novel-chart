@@ -40,8 +40,11 @@
 </style>
 
 <img src="graph.png" id="graph" />
-<div class="cursor"></div>
-<div class="cursor-line"></div>
+<div class="graph-overlay-0"></div>
+<div class="graph-overlay-1">
+	<div class="cursor"></div>
+	<div class="cursor-line"></div>
+</div>
 
 <div class="annotation-dot"></div>
 <div class="annotation-form">
@@ -61,11 +64,28 @@ function linearInterpolate(val, min1, max1, min2, max2) {
 }
 
 function graphPointFor(x) {
-	for (var i = 0; i < points.length - 1; i++) {
-		if (x >= points[i][0] && x <= points[i+1][0]) {
-			return linearInterpolate(x, points[i][0], points[i+1][0], points[i][1], points[i+1][1]);
+	// check if we're close to a peak and snap to that
+	var nearby = [];
+	for (var i = 0; i < points.length; i++) {
+		if (Math.abs(points[i][0] - x) < 4) {
+			nearby.push(points[i]);
 		}
 	}
+	if (nearby.length > 0) {
+		nearby.sort(function (p1, p2) {
+			return Math.abs(p1[0] - x) - Math.abs(p2[0] - x);
+		});
+		return nearby[0];
+	}
+
+	// interpolate between the points we're between
+	for (var i = 0; i < points.length - 1; i++) {
+		if (x >= points[i][0] && x <= points[i+1][0]) {
+			return [x, linearInterpolate(x, points[i][0], points[i+1][0], points[i][1], points[i+1][1])];
+		}
+	}
+
+	return [undefined, undefined];
 }
 
 function Annotation(x, y, letter, $cursor) {
@@ -89,6 +109,7 @@ AnnotationForm.prototype = {
 
 $(document).on('ready', function () {
 	var $graphImage = $('#graph');
+	var $overlay0 = $('.graph-overlay-0');
 
 	var $cursor = $('.cursor');
 	var $cursorLine = $('.cursor-line');
@@ -98,15 +119,14 @@ $(document).on('ready', function () {
 	var $annotationForm = $('.annotation-form');
 
 	$graphImage.on('mousemove', function (e) {
-		cursorPosition[0] = e.pageX - $graphImage.offset().left;
-		cursorPosition[1] = graphPointFor(cursorPosition[0]);
+		cursorPosition = graphPointFor(e.pageX - $graphImage.offset().left);
 		if (cursorPosition[1] !== undefined) {
 			$cursor.show().offset({
-				left: e.pageX - $cursor.outerWidth()/2,
+				left: $graphImage.offset().left + cursorPosition[0] - $cursor.outerWidth()/2,
 				top: $graphImage.offset().top + (cursorPosition[1] - $cursor.outerHeight()/2)
 			});
 			$cursorLine.show().offset({
-				left: e.pageX,
+				left: $graphImage.offset().left + cursorPosition[0],
 				top: $graphImage.offset().top
 			});
 		}
@@ -119,7 +139,7 @@ $(document).on('ready', function () {
 			nextLetter = (nextLetter + 1) % letters.length;
 
 			// create the dot on the graph
-			var $dot = $annotationDot.clone().appendTo(document.body).show();
+			var $dot = $annotationDot.clone().appendTo($overlay0).show();
 			$dot.offset({
 				left: cursorPosition[0] + $graphImage.offset().left - $dot.outerWidth()/2,
 				top: cursorPosition[1] + $graphImage.offset().top - $dot.outerHeight()/2
