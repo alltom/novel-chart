@@ -1,45 +1,8 @@
 <!doctype html>
 <meta charset="utf-8">
 <title>Novel Chart</title>
-<style>
-.cursor, .cursor-line {
-	pointer-events: none;
-	display: none;
-	position: absolute;
-}
-.cursor {
-	width: 10px;
-	height: 10px;
-	border: 2px solid black;
-}
-.cursor-line {
-	height: 400px;
-	width: 0;
-	border-left: 1px solid black;
-}
-.annotation-dot {
-	display: none;
-	position: absolute;
-	width: 16px;
-	height: 16px;
-	background: red;
-	color: white;
-	font-size: 16px;
-	font-weight: bold;
-	text-align: center;
-	line-height: 16px;
-	cursor: pointer;
-	border-radius: 4px;
-}
-.form {
-	padding: 4px;
-	background: white;
-	border: 1px solid black;
-}
-.annotation-form {
-	display: none;
-}
-</style>
+<link rel="stylesheet" href="jquery/jquery-ui.css">
+<link rel="stylesheet" href="index.css">
 
 <img src="graph.png" id="graph" />
 <div class="graph-overlay-0"></div>
@@ -61,5 +24,4 @@
 
 <script src="jquery/jquery.js"></script>
 <script src="jquery/jquery-ui.js"></script>
-<link rel="stylesheet" href="jquery/jquery-ui.css">
 <script src="index.js"></script>
