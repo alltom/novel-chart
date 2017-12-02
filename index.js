@@ -102,6 +102,18 @@ $(document).on('ready', function() {
       });
       $dot.text(letter);
 
+      $dot.draggable({
+        drag: function(event, ui) {
+          var pt = graphPointFor(ui.position.left - $graphImage.offset().left);
+          ui.position.left = pt[0];
+          ui.position.top = pt[1];
+
+          cursorPosition = [undefined, undefined];
+          $cursor.hide();
+          $cursorLine.hide();
+        },
+      });
+
       // create the annotation object and its form
       var annotation =
           new Annotation(cursorPosition[0], cursorPosition[1], letter, $dot);
