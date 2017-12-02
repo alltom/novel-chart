@@ -51,7 +51,11 @@ function AnnotationForm($form, annotation) {
   this.$form = $form;
   this.annotation = annotation;
 
-  this.$form.find('input').val(this.annotation.letter);
+  var letterInput = this.$form.find('input');
+  letterInput.val(this.annotation.letter);
+  letterInput.on('change', function() {
+    this.annotation.$cursor.text(letterInput.val());
+  }.bind(this));
 }
 AnnotationForm.prototype = {
   show: function() {
