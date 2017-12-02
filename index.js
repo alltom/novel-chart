@@ -4,7 +4,7 @@ var points = [
   [510, 43], [535, 43]
 ];
 
-var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('');
 var nextLetter = 0;
 
 function linearInterpolate(val, min1, max1, min2, max2) {
