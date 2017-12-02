@@ -34,9 +34,17 @@
 .form {
 	padding: 4px;
 	background: white;
-	border: 1px solid black;
+	margin: 4px 0;
+	box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.3);
 }
 
 .annotation-form {
 	display: none;
+}
+
+@media print {
+	textarea {
+		border: 0;
+		width: 100%;
+	}
 }
