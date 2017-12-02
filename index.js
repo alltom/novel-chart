@@ -7,6 +7,9 @@ var points = [
 var letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('');
 var nextLetter = 0;
 
+var annotations = [];
+var annotationForms = [];
+
 function linearInterpolate(val, min1, max1, min2, max2) {
   return (val - min1) / (max1 - min1) * (max2 - min2) + min2;
 }
@@ -63,6 +66,18 @@ AnnotationForm.prototype = {
   },
 };
 
+function WordCountForm($form) {
+  var $input = $form.find('input');
+  var $output = $form.find('.output');
+
+  function update() {
+    $output.text(Math.round(parseInt($input.val()) / Math.max(annotations.length, 1)));
+  }
+
+  $(document.body).on('newannotation', update);
+  $input.on('change', update);
+}
+
 $(document).on('ready', function() {
   var $graphImage = $('#graph');
   var $overlay0 = $('.graph-overlay-0');
@@ -73,6 +88,9 @@ $(document).on('ready', function() {
 
   var $annotationDot = $('.annotation-dot');
   var $annotationForm = $('.annotation-form');
+
+  var $wordCountForm = $('.word-count-form');
+  new WordCountForm($wordCountForm);
 
   $graphImage.on('mousemove', function(e) {
     cursorPosition = graphPointFor(e.pageX - $graphImage.offset().left);
@@ -124,6 +142,10 @@ $(document).on('ready', function() {
       var form = new AnnotationForm(
           $annotationForm.clone().appendTo(document.body), annotation);
       form.show();
+      annotations.push(annotation);
+      annotationForms.push(form);
+
+      $(document.body).trigger('newannotation');
     }
   });
 

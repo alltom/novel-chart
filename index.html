@@ -31,11 +31,13 @@
 	cursor: pointer;
 	border-radius: 4px;
 }
-.annotation-form {
-	display: none;
+.form {
 	padding: 4px;
 	background: white;
 	border: 1px solid black;
+}
+.annotation-form {
+	display: none;
 }
 </style>
 
@@ -46,8 +48,13 @@
 	<div class="cursor-line"></div>
 </div>
 
+<div class="form word-count-form">
+	<div>Total word count: <input type="number" value="300"></div>
+	<div>≈ <span class="output">300</span> words per section</div>
+</div>
+
 <div class="annotation-dot"></div>
-<div class="annotation-form">
+<div class="form annotation-form">
 	Letter: <input type="text" /><br />
 	Notes: <textarea></textarea>
 </div>
